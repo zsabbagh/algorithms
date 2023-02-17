@@ -2,7 +2,6 @@
 Implementation of Red-Black tree.
 """
 
-
 class RBNode:
     def __init__(self, val, is_red, parent=None, left=None, right=None):
         self.val = val
@@ -208,15 +207,21 @@ class RBTree:
 
     def delete_fixup(self, node):
         # 4 cases
+
+        branches = set()
+
         while node is not self.root and node.color == 0:
+            branches.add(1)
             # node is not root and color is black
             if node is node.parent.left:
+                branches.add(2)
                 # node is left node
                 node_brother = node.parent.right
 
                 # case 1: node's red, can not get black node
                 # set brother is black and parent is red 
                 if node_brother.color == 1:
+                    branches.add(3)
                     node_brother.color = 0
                     node.parent.color = 1
                     self.left_rotate(node.parent)
@@ -225,12 +230,15 @@ class RBTree:
                 # case 2: brother node is black, and its children node is both black
                 if (node_brother.left is None or node_brother.left.color == 0) and (
                                 node_brother.right is None or node_brother.right.color == 0):
+                    branches.add(4)
                     node_brother.color = 1
                     node = node.parent
                 else:
+                    branches.add(5)
 
                     # case 3: brother node is black , and its left child node is red and right is black
                     if node_brother.right is None or node_brother.right.color == 0:
+                        branches.add(6)
                         node_brother.color = 1
                         node_brother.left.color = 0
                         self.right_rotate(node_brother)
@@ -244,17 +252,22 @@ class RBTree:
                     node = self.root
             else:
                 node_brother = node.parent.left
+                branches.add(6)
                 if node_brother.color == 1:
+                    branches.add(7)
                     node_brother.color = 0
                     node.parent.color = 1
                     self.left_rotate(node.parent)
                     node_brother = node.parent.right
                 if (node_brother.left is None or node_brother.left.color == 0) and (
                                 node_brother.right is None or node_brother.right.color == 0):
+                    branches.add(8)
                     node_brother.color = 1
                     node = node.parent
                 else:
+                    branches.add(9)
                     if node_brother.left is None or node_brother.left.color == 0:
+                        branches.add(10)
                         node_brother.color = 1
                         node_brother.right.color = 0
                         self.left_rotate(node_brother)
@@ -265,6 +278,12 @@ class RBTree:
                     self.right_rotate(node.parent)
                     node = self.root
         node.color = 0
+        with open('data/branch-coverage', 'a') as f:
+            f.write('delete_fixup:' + str(len(branches) / 10.0))
+            for i in range(1, 11):
+                if i not in branches:
+                    f.write(' ' + str(i))
+            f.write('\n')
 
     def inorder(self):
         res = []
