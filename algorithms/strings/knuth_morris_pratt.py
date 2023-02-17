@@ -73,7 +73,7 @@ def knuth_morris_pratt(text : Sequence, pattern : Sequence) -> List[int]:
         if branches_not_found == "":
             f.write("0")
         else:
-            branches_not_found.strip(";")
+            branches_not_found = branches_not_found.strip(";")
             f.write(branches_not_found)
 
         f.write('\n')
