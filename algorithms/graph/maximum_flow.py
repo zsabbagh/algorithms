@@ -54,39 +54,80 @@ def edmonds_karp(capacity, source, sink):
     Time complexity : O(V*E^2)
     V is the number of vertices and E is the number of edges.
     """
+    branches = set()
+
     vertices = len(capacity)
     ret = 0
-    flow = [[0]*vertices for _ in range(vertices)]
+    flow = []
+    for _ in range(vertices):
+        branches.add(1)
+        flow.append([0] * vertices)
     while True:
+        branches.add(2)
         tmp = 0
         queue = Queue()
-        visit = [False for _ in range(vertices)]
-        par = [-1 for _ in range(vertices)]
+        visit = []
+        for _ in range(vertices):
+            branches.add(3)
+            visit.append(False)
+        par = []
+        for _ in range(vertices):
+            branches.add(4)
+            par.append(-1)
         visit[source] = True
         queue.put((source, 1 << 63))
         # Finds new flow using BFS.
         while queue.qsize():
+            branches.add(5)
             front = queue.get()
             idx, current_flow = front
             if idx == sink:
+                branches.add(6)
                 tmp = current_flow
                 break
+            else:
+                branches.add(7)
             for nxt in range(vertices):
+                branches.add(8)
                 if not visit[nxt] and flow[idx][nxt] < capacity[idx][nxt]:
+                    branches.add(9)
                     visit[nxt] = True
                     par[nxt] = idx
                     queue.put((nxt, min(current_flow, capacity[idx][nxt]-flow[idx][nxt])))
+                else:
+                    branches.add(10)
         if par[sink] == -1:
+            branches.add(11)
             break
+        else:
+            branches.add(12)
         ret += tmp
         parent = par[sink]
         idx = sink
         # Update flow array following parent starting from sink.
         while parent != -1:
+            branches.add(13)
             flow[parent][idx] += tmp
             flow[idx][parent] -= tmp
             idx = parent
             parent = par[parent]
+    with open('data/branch-coverage', 'a') as f:
+        function_name = "edmonds_karp"
+        total_branches = 13
+        ratio = str(len(branches) / total_branches)
+        f.write(
+            f'{function_name},{total_branches},{ratio},'
+        )
+        branches_not_found = ""
+        for i in range(1, int(total_branches) + 1):
+            if i not in branches:
+                branches_not_found += f"{str(i)};"
+        if branches_not_found == "":
+            f.write("0")
+        else:
+            branches_not_found = branches_not_found.strip(";")
+            f.write(branches_not_found)
+        f.write('\n')
     return ret
 
 def dinic_bfs(capacity, flow, level, source, sink):

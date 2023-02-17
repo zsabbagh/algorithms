@@ -75,6 +75,5 @@ def knuth_morris_pratt(text : Sequence, pattern : Sequence) -> List[int]:
         else:
             branches_not_found = branches_not_found.strip(";")
             f.write(branches_not_found)
-
         f.write('\n')
     return ret
