@@ -279,10 +279,10 @@ class RBTree:
                     node = self.root
         node.color = 0
         with open('data/branch-coverage', 'a') as f:
-            f.write('delete_fixup:' + str(len(branches) / 10.0))
+            f.write(f'delete_fixup,{len(branches)},{len(branches)/10.0},')
             for i in range(1, 11):
                 if i not in branches:
-                    f.write(' ' + str(i))
+                    f.write(f'{i};')
             f.write('\n')
 
     def inorder(self):
