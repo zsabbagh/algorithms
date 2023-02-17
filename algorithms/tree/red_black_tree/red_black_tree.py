@@ -85,17 +85,32 @@ class RBTree:
         self.fix_insert(node)
 
     def fix_insert(self, node):
+        
+        branches = set()
+
         # case 1 the parent is null, then set the inserted node as root and color = 0
         if node.parent is None:
+            # ID 1
+            branches.add(1)
             node.color = 0
             self.root = node
             return
-            # case 2 the parent color is black, do nothing
+        else:
+            # ID 2
+            branches.add(2)
+
+        # case 2 the parent color is black, do nothing
         # case 3 the parent color is red
         while node.parent and node.parent.color == 1:
+            # ID 3
+            branches.add(3)
             if node.parent is node.parent.parent.left:
+                # ID 4
+                branches.add(4)
                 uncle_node = node.parent.parent.right
                 if uncle_node and uncle_node.color == 1:
+                    # ID 5
+                    branches.add(5)
                     # case 3.1 the uncle node is red
                     # then set parent and uncle color is black and grandparent is red
                     # then node => node.parent
@@ -105,6 +120,8 @@ class RBTree:
                     node = node.parent.parent
                     continue
                 elif node is node.parent.right:
+                    branches.add(6)
+                    #ID 6
                     # case 3.2 the uncle node is black or null, and the node is right of parent
                     # then set his parent node is current node
                     # left rotate the node and continue the next
@@ -116,8 +133,12 @@ class RBTree:
                 node.parent.parent.color = 1
                 self.right_rotate(node.parent.parent)
             else:
+                #ID 7
+                branches.add(7)
                 uncle_node = node.parent.parent.left
                 if uncle_node and uncle_node.color == 1:
+                    #ID 8
+                    branches.add(8)
                     # case 3.1 the uncle node is red
                     # then set parent and uncle color is black and grandparent is red
                     # then node => node.parent
@@ -127,6 +148,8 @@ class RBTree:
                     node = node.parent.parent
                     continue
                 elif node is node.parent.left:
+                    #ID 9
+                    branches.add(9)
                     # case 3.2 the uncle node is black or null, and the node is right of parent
                     # then set his parent node is current node
                     # left rotate the node and continue the next
@@ -138,6 +161,24 @@ class RBTree:
                 node.parent.parent.color = 1
                 self.left_rotate(node.parent.parent)
         self.root.color = 0
+
+        with open('data/branch-coverage', 'a') as f:
+            function_name = "fix_insert"
+            total_branches = 9
+            ratio = str(len(branches) / total_branches)
+            f.write(
+                f'{function_name},{total_branches},{ratio},'
+            )
+            branches_not_found = ""
+            for i in range(1, int(total_branches) + 1):
+                if i not in branches:
+                    branches_not_found += f"{str(i)};"
+            if branches_not_found == "":
+                f.write("0")
+            else:
+                branches_not_found = branches_not_found.strip(";")
+                f.write(branches_not_found)
+            f.write('\n')
 
     def transplant(self, node_u, node_v):
         """
