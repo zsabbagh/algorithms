@@ -71,22 +71,28 @@ def maximum_flow_bfs(adjacency_matrix):
                     visited[k] = 1
                     bfs.put(k)
                     path[k] = src
+                else:
+                    branches.add(5)
 
         #if there is no path from src to sink
         if visited[len(new_array) - 1] == 0:
-            branches.add(5)
+            branches.add(6)
             break
+        else:
+            branches.add(7)
 
         #initial setting
         tmp = len(new_array) - 1
 
         #Get minimum flow
         while tmp != 0:
-            branches.add(6)
+            branches.add(8)
             #find minimum flow
             if min_flow > new_array[path[tmp]][tmp]:
-                branches.add(7)
+                branches.add(9)
                 min_flow = new_array[path[tmp]][tmp]
+            else:
+                branches.add(10)
             tmp = path[tmp]
 
         #initial setting
@@ -96,13 +102,14 @@ def maximum_flow_bfs(adjacency_matrix):
         while tmp != 0:
             new_array[path[tmp]][tmp] = new_array[path[tmp]][tmp] - min_flow
             tmp = path[tmp]
-            branches.add(8)
+            branches.add(11)
 
         total = total + min_flow
     
     with open('data/branch-coverage', 'a') as f:
-        f.write(f'maximum_flow_bfs,{len(branches)},{len(branches)/8.0},')
-        for i in range(1, 9):
+        branch_total = 11
+        f.write(f'maximum_flow_bfs,{len(branches)},{len(branches)/float(branch_total)},')
+        for i in range(1, branch_total+1):
             if i not in branches:
                 f.write(f'{i};')
         f.write('\n')

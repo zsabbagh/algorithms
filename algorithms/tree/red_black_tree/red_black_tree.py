@@ -226,23 +226,27 @@ class RBTree:
                     node.parent.color = 1
                     self.left_rotate(node.parent)
                     node_brother = node.parent.right
+                else:
+                    branches.add(4)
 
                 # case 2: brother node is black, and its children node is both black
                 if (node_brother.left is None or node_brother.left.color == 0) and (
                                 node_brother.right is None or node_brother.right.color == 0):
-                    branches.add(4)
+                    branches.add(5)
                     node_brother.color = 1
                     node = node.parent
                 else:
-                    branches.add(5)
+                    branches.add(6)
 
                     # case 3: brother node is black , and its left child node is red and right is black
                     if node_brother.right is None or node_brother.right.color == 0:
-                        branches.add(6)
+                        branches.add(7)
                         node_brother.color = 1
                         node_brother.left.color = 0
                         self.right_rotate(node_brother)
                         node_brother = node.parent.right
+                    else:
+                        branches.add(8)
 
                     # case 4: brother node is black, and right is red, and left is any color
                     node_brother.color = node.parent.color
@@ -252,26 +256,30 @@ class RBTree:
                     node = self.root
             else:
                 node_brother = node.parent.left
-                branches.add(6)
+                branches.add(9)
                 if node_brother.color == 1:
                     branches.add(7)
                     node_brother.color = 0
                     node.parent.color = 1
                     self.left_rotate(node.parent)
                     node_brother = node.parent.right
+                else:
+                    branches.add(10)
                 if (node_brother.left is None or node_brother.left.color == 0) and (
                                 node_brother.right is None or node_brother.right.color == 0):
-                    branches.add(8)
+                    branches.add(11)
                     node_brother.color = 1
                     node = node.parent
                 else:
-                    branches.add(9)
+                    branches.add(12)
                     if node_brother.left is None or node_brother.left.color == 0:
-                        branches.add(10)
+                        branches.add(13)
                         node_brother.color = 1
                         node_brother.right.color = 0
                         self.left_rotate(node_brother)
                         node_brother = node.parent.left
+                    else:
+                        branches.add(14)
                     node_brother.color = node.parent.color
                     node.parent.color = 0
                     node_brother.left.color = 0
@@ -279,8 +287,9 @@ class RBTree:
                     node = self.root
         node.color = 0
         with open('data/branch-coverage', 'a') as f:
-            f.write(f'delete_fixup,{len(branches)},{len(branches)/10.0},')
-            for i in range(1, 11):
+            branch_total = 14
+            f.write(f'delete_fixup,{len(branches)},{len(branches)/float(branch_total)},')
+            for i in range(1, branch_total+1):
                 if i not in branches:
                     f.write(f'{i};')
             f.write('\n')
