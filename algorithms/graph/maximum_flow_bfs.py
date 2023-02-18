@@ -105,13 +105,23 @@ def maximum_flow_bfs(adjacency_matrix):
             branches.add(11)
 
         total = total + min_flow
-    
+
     with open('data/branch-coverage', 'a') as f:
-        branch_total = 11
-        f.write(f'maximum_flow_bfs,{len(branches)},{len(branches)/float(branch_total)},')
-        for i in range(1, branch_total+1):
+        function_name = "maximum_flow_bfs"
+        total_branches = 11
+        ratio = str(len(branches) / total_branches)
+        f.write(
+            f'{function_name},{total_branches},{ratio},'
+        )
+        branches_not_found = ""
+        for i in range(1, int(total_branches) + 1):
             if i not in branches:
-                f.write(f'{i};')
+                branches_not_found += f"{str(i)};"
+        if branches_not_found == "":
+            f.write("0")
+        else:
+            branches_not_found = branches_not_found.strip(";")
+            f.write(branches_not_found)
         f.write('\n')
 
     return total
