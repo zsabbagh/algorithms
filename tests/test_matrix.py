@@ -386,6 +386,15 @@ class TestSortMatrixDiagonally(unittest.TestCase):
             [1, 2, 3, 3]
         ])
 
+     
 
+    def test_sort_diagonally_with_vector(self):
+        vector1 = [[1], [2], [3]]
+        vector2 = [[1,2,3]]
+       
+        self.assertEqual(sort_matrix_diagonally.sort_diagonally(vector1), [[1], [2], [3]])
+        self.assertEqual(sort_matrix_diagonally.sort_diagonally(vector2), [[1,2,3]])
+        
+        
 if __name__ == "__main__":
     unittest.main()
