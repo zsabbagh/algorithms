@@ -213,6 +213,20 @@ class TestBellmanFord(unittest.TestCase):
         }
         self.assertEqual(True, bellman_ford(graph2, 'a'))
 
+    '''
+    This test checks if there is no solution
+    '''
+    def test_bellman_ford_no_shortest_path(self):
+       # The given graph contains a negative cycle with a as source
+       graph = {
+        'a': {'b': 1},
+        'b': {'c': -1},
+       'c': {'a': -1}
+       } 
+
+       self.assertFalse(bellman_ford(graph, 'a'))
+
+
 
 class TestConnectedComponentInGraph(unittest.TestCase):
     """
