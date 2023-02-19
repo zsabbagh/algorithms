@@ -14,7 +14,7 @@ from algorithms.tree import construct_tree_postorder_preorder as ctpp
 
 from algorithms.tree.fenwick_tree.fenwick_tree import Fenwick_Tree
 
-from algorithms.tree.red_black_tree.red_black_tree import RBTree, RBNode
+from algorithms.tree.red_black_tree.red_black_tree import RBTree
 
 import unittest
 
@@ -188,9 +188,7 @@ class TestRBTree(unittest.TestCase):
             in order of appearance
         """
         rbt = RBTree() if tree is None else tree
-        for val in ls:
-            node = RBNode(val, 0)
-            rbt.insert(node)
+        rbt.insert_iter(ls)
         return rbt
 
     def _randarr_randlen(self, abs_val: int, min_len: int, max_len: int):
@@ -201,7 +199,7 @@ class TestRBTree(unittest.TestCase):
         """
         return [ random.randint(-abs_val, abs_val) for _ in range(random.randint(min_len, max_len)) ]
 
-    def _get_color_node(self, rbt, color=0, min_depth=0) -> RBNode:
+    def _get_color_node(self, rbt, color=0, min_depth=0):
         """
             Gets the first node with a color
             Checks right child first, then left
@@ -271,10 +269,19 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (rbt.root.right.right.val, 75)
         self._ensure_coloring(rbt)
     
-    def test_delete_cases(self):
+    def test_delete(self):
         """
             Tests delete
         """
+        # iterations of random testcases
+        rbt = self._populate_tree([5, 2, 6])
+        self.assertEqual (rbt.root.val, 5)
+        self.assertEqual (rbt.root.right.val, 6)
+        self.assertEqual (rbt.root.left.val, 2)
+        rbt.delete(2)
+        rbt.delete(6)
+        self.assertTrue (rbt.root.right is None)
+        self.assertTrue (rbt.root.left is None)
         # Only initialiser is None...
         # Insert already tested
         rbt = self._populate_tree([55, 40, 65, 60, 75, 57])
@@ -282,47 +289,49 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (root.val, 60)
         # Root should be black
         self.assertEqual (root.color, 0)
-        rbt.delete(root)
+        rbt.delete(60)
         # Coloring should be preserved
         self._ensure_coloring(rbt)
         # case 3
         rbt = RBTree()
-        rbt.insert(RBNode(3, 0)) # black root
-        rbt.insert(RBNode(0, 0)) # black
-        rbt.insert(RBNode(5, 0)) # brother node
-        rbt.insert(RBNode(-1, 1)) # red
-        rbt.insert(RBNode(4, 1)) # brother left
-        rbt.insert(RBNode(7, 0)) # brother right
+        rbt.insert(3) # black root
+        rbt.insert(0) # black
+        rbt.insert(5) # brother node
+        rbt.insert(-1) # red
+        rbt.insert(4) # brother left
+        rbt.insert(7) # brother right
         # Assert structure
         self.assertEqual (self._stree(rbt), '3[0[-1:]:5[4:7]]')
-        rbt.delete(rbt.root.left)
+        rbt.delete(0)
         self.assertEqual (self._stree(rbt), '3[-1:5[4:7]]')
         # ERROR in implementation: cannot delete leaf
         # Added the possibility
         # However, it might not be correct
-        rbt.delete(rbt.root.left)
-        self.assertEqual (self._stree(rbt), '3[:5[4:7]]')
         self._ensure_coloring(rbt)
 
-    def test_delete_fixup_random_tree(self):
+    def test_find_node(self):
+        rbt = RBTree([5, 22, -1])
+        node = rbt.find_node(22)
+        self.assertIsNotNone (node)
+        node = rbt.find_node(100)
+        self.assertIsNone (node)
+
+    def test_delete_random_tree(self):
         """
-            Tests delete_fixup on random trees
+            Tests delete on random trees
         """
         # iterations of random testcases
         col = 0
         for _ in range(4):
-            rbt = self._populate_tree(self._randarr_randlen(50, 10, 20))
-            # delete a black node
-            node = self._get_color_node(rbt, color=col)
-            while node is not None:
-                rbt.delete_fixup(node)
+            arr = self._randarr_randlen(50, 10, 20)
+            rbt = self._populate_tree(arr)
+            arr = sorted(arr)
+            for val in arr:
+                rbt.delete(val)
+                node = rbt.find_node(val)
+                self.assertTrue (node is None)
                 # Coloring should be preserved
                 self._ensure_coloring(rbt)
-                if col == 0:
-                    col = 1
-                else:
-                    col = 0
-                node = self._get_color_node(rbt, color=col, min_depth=1)
     
     def test_min_max(self):
         """
@@ -334,22 +343,6 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (rbt.maximum(rbt.root).val, max_val)
         self.assertEqual (rbt.minimum(rbt.root).val, min_val)
 
-    def test_delete(self):
-        """
-            Tests delete
-        """
-        # iterations of random testcases
-        rbt = self._populate_tree([5, 2, 6])
-        self.assertEqual (rbt.root.val, 5)
-        self.assertEqual (rbt.root.right.val, 6)
-        self.assertEqual (rbt.root.left.val, 2)
-        rbt.delete(rbt.root.right)
-        rbt.delete(rbt.root.left)
-        self.assertTrue (rbt.root.right is None)
-        self.assertTrue (rbt.root.left is None)
-        self._populate_tree(range(10,20), tree=rbt)
-        self.assertEqual (rbt.maximum(rbt.root).val, 19)
-    
     def test_inorder(self):
         """
             Test inorder function
@@ -369,7 +362,7 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (rbt.root.left.val, 0)
         self.assertEqual (rbt.root.right.val, 10)
         self.assertEqual (rbt.root.right.left.val, 4)
-        node = RBNode(20, 0)
+        node = RBTree.RBNode(20, 0)
         # Replace node
         rbt.transplant(rbt.root.right, node)
         self.assertEqual (rbt.root.val, 3)
