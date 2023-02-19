@@ -182,7 +182,13 @@ class RBTree:
     def delete(self, node):
         # find the node position
         node_color = node.color
-        if node.left is None:
+        if node.left is None and node.right is None:
+            if node is node.parent.left:
+                node.parent.left = None
+            else:
+                node.parent.right = None
+            temp_node = node.parent
+        elif node.left is None:
             temp_node = node.right
             self.transplant(node, node.right)
         elif node.right is None:

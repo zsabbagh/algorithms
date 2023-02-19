@@ -244,6 +244,21 @@ class TestRBTree(unittest.TestCase):
                 self.assertNotEqual (root.left.color+root.color, 2)
             if len(stack) < 1:
                 break
+    
+    def _stree(self, rbt):
+        if type(rbt) == RBTree:
+            return self._stree(rbt.root)
+        if rbt is None:
+            return ''
+        if rbt.left is None and rbt.right is None:
+            return str(rbt.val)
+        ls = [str(rbt.val), '[']
+        ls.append(self._stree(rbt.left))
+        ls.append(':')
+        ls.append(self._stree(rbt.right))
+        ls.append(']')
+        return ''.join(ls)
+
 
     def test_insert(self):
         # Only initialiser is None...
@@ -256,7 +271,10 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (rbt.root.right.right.val, 75)
         self._ensure_coloring(rbt)
     
-    def test_delete_fixup(self):
+    def test_delete_cases(self):
+        """
+            Tests delete
+        """
         # Only initialiser is None...
         # Insert already tested
         rbt = self._populate_tree([55, 40, 65, 60, 75, 57])
@@ -264,8 +282,26 @@ class TestRBTree(unittest.TestCase):
         self.assertEqual (root.val, 60)
         # Root should be black
         self.assertEqual (root.color, 0)
-        rbt.delete_fixup(root)
+        rbt.delete(root)
         # Coloring should be preserved
+        self._ensure_coloring(rbt)
+        # case 3
+        rbt = RBTree()
+        rbt.insert(RBNode(3, 0)) # black root
+        rbt.insert(RBNode(0, 0)) # black
+        rbt.insert(RBNode(5, 0)) # brother node
+        rbt.insert(RBNode(-1, 1)) # red
+        rbt.insert(RBNode(4, 1)) # brother left
+        rbt.insert(RBNode(7, 0)) # brother right
+        # Assert structure
+        self.assertEqual (self._stree(rbt), '3[0[-1:]:5[4:7]]')
+        rbt.delete(rbt.root.left)
+        self.assertEqual (self._stree(rbt), '3[-1:5[4:7]]')
+        # ERROR in implementation: cannot delete leaf
+        # Added the possibility
+        # However, it might not be correct
+        rbt.delete(rbt.root.left)
+        self.assertEqual (self._stree(rbt), '3[:5[4:7]]')
         self._ensure_coloring(rbt)
 
     def test_delete_fixup_random_tree(self):
@@ -287,6 +323,16 @@ class TestRBTree(unittest.TestCase):
                 else:
                     col = 0
                 node = self._get_color_node(rbt, color=col, min_depth=1)
+    
+    def test_min_max(self):
+        """
+            Test minimum and maximum functions
+        """
+        max_val = 1000
+        min_val = -1000
+        rbt = self._populate_tree([0, 10, 3, 18, 3, min_val, -5, 19, max_val])
+        self.assertEqual (rbt.maximum(rbt.root).val, max_val)
+        self.assertEqual (rbt.minimum(rbt.root).val, min_val)
 
     def test_delete(self):
         """
@@ -303,6 +349,34 @@ class TestRBTree(unittest.TestCase):
         self.assertTrue (rbt.root.left is None)
         self._populate_tree(range(10,20), tree=rbt)
         self.assertEqual (rbt.maximum(rbt.root).val, 19)
+    
+    def test_inorder(self):
+        """
+            Test inorder function
+        """
+        arr = self._randarr_randlen(20, 19, 20)
+        rbt = self._populate_tree(arr)
+        ordered = rbt.inorder()
+        for i in range(1, len(ordered)):
+            self.assertLessEqual (ordered[i-1]['val'], ordered[i]['val'])
+    
+    def test_transplant(self):
+        """
+            Test transplant
+        """
+        rbt = self._populate_tree([3, 0, 10, 4])
+        self.assertEqual (rbt.root.val, 3)
+        self.assertEqual (rbt.root.left.val, 0)
+        self.assertEqual (rbt.root.right.val, 10)
+        self.assertEqual (rbt.root.right.left.val, 4)
+        node = RBNode(20, 0)
+        # Replace node
+        rbt.transplant(rbt.root.right, node)
+        self.assertEqual (rbt.root.val, 3)
+        self.assertEqual (rbt.root.left.val, 0)
+        self.assertEqual (rbt.root.right.val, 20)
+        self.assertTrue (rbt.root.right.right is None)
+        self.assertTrue (rbt.root.right.left is None)
 
 if __name__ == '__main__':
     unittest.main()
