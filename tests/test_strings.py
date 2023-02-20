@@ -612,6 +612,10 @@ class TestKnuthMorrisPratt(unittest.TestCase):
         self.assertEqual([], knuth_morris_pratt("aabcdaab", "aba"))
         self.assertEqual([0, 4], knuth_morris_pratt([0,0,1,1,0,0,1,0], [0,0]))
         self.assertEqual([], knuth_morris_pratt("aaaaaaa", "aabb"))
+        self.assertEqual([], knuth_morris_pratt("abcdefg", "hij"))
+        self.assertEqual([], knuth_morris_pratt([1,1,2,3,5,8], "test"))
+        self.assertEqual([], knuth_morris_pratt("", ""))
+        self.assertEqual([], knuth_morris_pratt("", "pattern"))
 
 
 class TestPanagram(unittest.TestCase):
