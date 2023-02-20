@@ -25,3 +25,31 @@ def is_cyclic(head):
         if runner == walker:
             return True
     return False
+
+import unittest
+
+class TestLinkedListCycle(unittest.TestCase):
+
+    def test_is_cyclic(self):
+
+        # create a cyclic linked list 1 -> 2 -> 3 -> 4 -> 2
+        head = Node(1)
+        curr = head
+        for i in range(2, 5):
+            curr.next = Node(i)
+            curr = curr.next
+        curr.next = head.next
+
+        self.assertTrue(is_cyclic(head))
+
+        # create a non-cyclic linked list 1 -> 2 -> 3 -> 4 -> None
+        head = Node(1)
+        curr = head
+        for i in range(2, 5):
+            curr.next = Node(i)
+            curr = curr.next
+
+        self.assertFalse(is_cyclic(head))
+
+        # test an empty list
+        self.assertFalse(is_cyclic(None))
